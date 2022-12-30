@@ -15,9 +15,18 @@ import java.util.List;
 public class Bridge {
     public static final String URL = "url";
     public static final String RULES = "rules";
-    private static File profile;
     private static Bridge instance;
+    /**
+     * UI对象
+     */
     private final TabShow show;
+    /**
+     * 配置文件路径
+     */
+    private File profile;
+    /**
+     * Server地址
+     */
     private String url;
 
     private Bridge() {
@@ -47,6 +56,11 @@ public class Bridge {
         }
     }
 
+    /**
+     * 初始化获取配置
+     *
+     * @return Rule列表
+     */
     public List<String> readRules() {
         List<String> result = new ArrayList<>();
         try (FileInputStream fileInputStream = new FileInputStream(profile)) {
@@ -63,11 +77,16 @@ public class Bridge {
             }
         } catch (FileNotFoundException ignored) {
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
         return result;
     }
 
+    /**
+     * 保存配置文件
+     *
+     * @param ruleModel Rule列表数据
+     */
     public void saveModel(RuleModel ruleModel) {
         if (profile == null) {
             return;

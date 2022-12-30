@@ -1,4 +1,7 @@
-package burp;
+package burp.callback;
+
+import burp.*;
+import burp.network.Transmission;
 
 import java.awt.*;
 import java.io.PrintStream;
@@ -79,7 +82,7 @@ public class MessageEditorTabFactory implements IMessageEditorTabFactory {
                     isModified = true;
                 }
             } catch (Exception e) {
-                stderr.println(e);
+                e.printStackTrace(stderr);
             }
             editor.setText(text);
         }

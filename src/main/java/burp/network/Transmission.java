@@ -1,8 +1,12 @@
-package burp;
+package burp.network;
 
+import burp.IExtensionHelpers;
+import burp.Utils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -24,13 +28,24 @@ public class Transmission {
     public static byte[] buildResponseBytes(IExtensionHelpers helpers, String data) {
         JSONObject jsonObject = new JSONObject(data);
         byte[] body = Utils.b64decode(jsonObject.getString(Packet.BODY));
-        if (jsonObject.has(Packet.HEADERS)) {
-            return helpers.buildHttpMessage(Utils.jsonArrayToList(jsonObject.getJSONArray(Packet.HEADERS)), body);
+        if (jsonObject.has(Packet.HEADERS) && jsonObject.has(Packet.ORDER)) {
+            JSONObject headers = jsonObject.getJSONObject(Packet.HEADERS);
+            List<String> headersString = new ArrayList<>(headers.length());
+            for (Object each : jsonObject.getJSONArray(Packet.ORDER)) {
+                String name = each.toString();
+                if ("main".equals(name)) {
+                    headersString.add(headers.getString(name));
+                    continue;
+                }
+                headersString.add(String.format("%s: %s", name, headers.getString(name)));
+            }
+            return helpers.buildHttpMessage(headersString, body);
         }
         return body;
     }
 
     public static class Packet {
+        public static final String ORDER = "order";
         public static final String FROM = "from";
         public static final String TYPE = "type";
         public static final String HEADERS = "headers";
@@ -56,7 +71,19 @@ public class Transmission {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put(FROM, from);
             jsonObject.put(TYPE, type.ordinal());
-            jsonObject.put(HEADERS, new JSONArray().putAll(headers));
+
+            JSONObject headers = new JSONObject();
+            headers.put("main", this.headers.get(0));
+            JSONArray order = new JSONArray(Collections.singleton("main"));
+            for (String each : this.headers.subList(1, this.headers.size())) {
+                int splitPoint = each.indexOf(":");
+                String name = each.substring(0, splitPoint).trim();
+                String value = each.substring(splitPoint + 1).trim();
+                order.put(name);
+                headers.put(name, value);
+            }
+            jsonObject.put(ORDER, order);
+            jsonObject.put(HEADERS, headers);
             jsonObject.put(URL, url);
             jsonObject.put(BODY, Utils.b64encode(body));
             return jsonObject.toString();

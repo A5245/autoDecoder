@@ -1,4 +1,4 @@
-package burp;
+package burp.network;
 
 import okhttp3.*;
 

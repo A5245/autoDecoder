@@ -1,12 +1,8 @@
 package burp;
 
-import org.json.JSONArray;
-
 import javax.swing.*;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Base64;
-import java.util.List;
 import java.util.Vector;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
@@ -34,6 +30,12 @@ public class Utils {
         return value == null || value.isEmpty();
     }
 
+    /**
+     * 匹配URL是否满足Rules规则
+     *
+     * @param url 目标URL地址
+     * @return 是否匹配Rules
+     */
     public static boolean isMatch(String url) {
         Bridge instance = Bridge.getInstance();
         TabShow show = instance.getShow();
@@ -53,6 +55,12 @@ public class Utils {
         return false;
     }
 
+    /**
+     * 弹窗获取用户输入
+     *
+     * @param tips     输入框提示
+     * @param consumer 输入字符串处理
+     */
     public static void inputText(String tips, Consumer<String> consumer) {
         String s = JOptionPane.showInputDialog(tips);
         if (Utils.isEmpty(s)) {
@@ -61,14 +69,13 @@ public class Utils {
         consumer.accept(s);
     }
 
-    public static List<String> jsonArrayToList(JSONArray array) {
-        List<String> result = new ArrayList<>(array.length());
-        for (Object o : array) {
-            result.add(o.toString());
-        }
-        return result;
-    }
-
+    /**
+     * 通过数据包Header头获取URL地址（Editor中无法使用analyzeRequest获取URL）
+     * 无法获取协议类型（例如：https/http）
+     *
+     * @param data 数据包
+     * @return 当前数据包中的URL
+     */
     public static String getUrlByBytes(byte[] data) {
         String[] split = new String(data).split("\n");
         String urlPath = null;

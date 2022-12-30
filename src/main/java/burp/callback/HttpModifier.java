@@ -1,4 +1,7 @@
-package burp;
+package burp.callback;
+
+import burp.*;
+import burp.network.Transmission;
 
 import java.io.PrintStream;
 import java.util.Arrays;
@@ -45,7 +48,7 @@ public class HttpModifier implements IHttpListener {
                 }
             }
         } catch (Exception e) {
-            stderr.println(e);
+            e.printStackTrace(stderr);
         }
 
         if (messageIsRequest) {
