@@ -75,16 +75,17 @@ class Demo(BaseModel):
         return data.to_data()
 
     def on_response(self, data: Packet) -> Dict[str, Any]:
-        args: DemoArgument = data.argument
-        if not args.skip:
-            try:
-                data.set_body(decrypt(data.body))
-                args.add_argument("skip", True)
-            except (binascii.Error, ValueError):
-                pass
-        else:
-            data.set_body(encrypt(data.body))
-            args.remove_argument("skip")
+        if data.from_int == Packet.FromInt.EDITOR:
+            args: DemoArgument = data.argument
+            if not args.skip:
+                try:
+                    data.set_body(decrypt(data.body))
+                    args.add_argument("skip", True)
+                except (binascii.Error, ValueError):
+                    pass
+            else:
+                data.set_body(encrypt(data.body))
+                args.remove_argument("skip")
         return data.to_data()
 
 
