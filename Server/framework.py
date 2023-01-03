@@ -43,6 +43,7 @@ class Packet(object):
         self.__order = order
         self.__headers = headers
         self.__body = base64.b64decode(body)
+        self.__modified = False
 
     @property
     def type(self) -> Type:
@@ -61,20 +62,23 @@ class Packet(object):
         return self.__headers
 
     @property
-    def body(self) -> str | bytes:
+    def body(self) -> bytes:
         return self.__body
 
-    def set_body(self, body: str | bytes):
+    def set_body(self, body: bytes):
         self.__body = body
+        self.__modified = True
 
     def remove_header(self, name: str):
         self.__order.remove(name)
         self.__headers.pop(name)
+        self.__modified = True
 
     def add_header(self, name: str, value: str):
         if name not in self.__order:
             self.__order.append(name)
         self.__headers[name] = value
+        self.__modified = True
 
     @staticmethod
     def create(js: dict):
@@ -102,9 +106,9 @@ class Packet(object):
 
         :return: json数据
         """
-        body = self.body
-        return make_response(base64.b64encode(body.encode() if isinstance(body, str) else body).decode(),
-                             self.__order, self.headers)
+        return make_response(base64.b64encode(self.__body).decode(),
+                             self.__order if self.__modified else None,
+                             self.__headers if self.__modified else None)
 
 
 class BaseModel(ABC):

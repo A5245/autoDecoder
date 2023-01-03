@@ -1,10 +1,9 @@
 def make_response(body_base64: str, order=None, headers=None):
-    if headers is None:
-        headers = []
-    if order is None:
-        order = []
-    return {
-        "headers": headers,
-        "order": order,
+    result = {
         "body": body_base64
     }
+    if headers is not None:
+        result["headers"] = headers
+    if order is not None:
+        result["order"] = order
+    return result
