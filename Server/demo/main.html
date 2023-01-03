@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<script type="text/javascript" src="aes.js"></script>
+<script>
+    const KEY = [0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36];
+    const IV = [0x33, 0x32, 0x31, 0x36, 0x35, 0x34, 0x39, 0x38, 0x37, 0x30, 0x33, 0x32, 0x31, 0x36, 0x35, 0x34];
+
+    function set() {
+        const name = document.getElementById("name");
+        const aesCbc = new aesjs.ModeOfOperation.cbc(KEY, IV);
+        fetch("http://127.0.0.1:60000/set", {
+            method: "POST",
+            body: aesjs.utils.hex.fromBytes(aesCbc.encrypt(aesjs.padding.pkcs7.pad(aesjs.utils.utf8.toBytes(name.value)))),
+            mode: "cors",
+        })
+    }
+
+    function get() {
+        fetch("http://127.0.0.1:60000/get", {
+            method: "GET",
+            mode: "cors"
+        }).then(response => response.text())
+            .then(text => {
+                const aesCbc = new aesjs.ModeOfOperation.cbc(KEY, IV);
+                alert(aesjs.utils.utf8.fromBytes(aesjs.padding.pkcs7.strip(aesCbc.decrypt(aesjs.utils.hex.toBytes(text)))))
+            });
+    }
+</script>
+<body>
+<label for="name">Input</label>
+<input type="text" id="name">
+<button id="set" onclick="set()">SET</button>
+<button id="get" onclick="get()">GET</button>
+</body>
+</html>

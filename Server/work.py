@@ -1,6 +1,6 @@
 from typing import Dict, Any
 
-from framework import BaseModel, Packet, init, start
+from framework import BaseModel, Packet, Framework
 
 
 class Decrypt(BaseModel):
@@ -11,7 +11,7 @@ class Decrypt(BaseModel):
         :return: 修改后的数据
         """
         data.add_header("Test", "Request")
-        print("requestUrl:\t%s\nbody:\t%s" % (data.url, data.body))
+        print(f"requestUrl:\t{data.url}\nbody:\t{data.body}")
         return data.to_data()
 
     def on_response(self, data: Packet) -> Dict[str, Any]:
@@ -21,13 +21,12 @@ class Decrypt(BaseModel):
         :return: 修改后的数据
         """
         data.add_header("Test", "Response")
-        print("response:\t%s" % data.body)
+        print(f"response:\t{data.body}")
         return data.to_data()
 
 
 def main():
-    init(Decrypt())
-    start()
+    Framework("server", Decrypt()).start()
 
 
 if __name__ == '__main__':

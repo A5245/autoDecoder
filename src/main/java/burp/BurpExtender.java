@@ -44,6 +44,7 @@ public class BurpExtender implements IBurpExtender, ITab {
             e.printStackTrace(stderr);
         }
         show.setUrl(instance.getUrl());
+        show.setCustomFlag(instance.getFlag());
 
         stdout.printf("%s-%s %s\n", TAB_NAME, VERSION, "loaded");
         stdout.println("https://github.com/A5245/autoDecoder");

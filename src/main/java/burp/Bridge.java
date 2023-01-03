@@ -15,6 +15,7 @@ import java.util.List;
 public class Bridge {
     public static final String URL = "url";
     public static final String RULES = "rules";
+    public static final String FLAG = "flag";
     private static Bridge instance;
     /**
      * UI对象
@@ -28,8 +29,11 @@ public class Bridge {
      * Server地址
      */
     private String url;
+    private String flag;
 
     private Bridge() {
+        url = "http://127.0.0.1:5000/do";
+        flag = "AutoDecoder";
         show = new TabShow();
     }
 
@@ -47,6 +51,9 @@ public class Bridge {
     }
 
     public void setUrl(String url) {
+        if (Utils.isEmpty(url)) {
+            return;
+        }
         this.url = url;
     }
 
@@ -54,6 +61,17 @@ public class Bridge {
         synchronized (Bridge.class) {
             profile = file;
         }
+    }
+
+    public String getFlag() {
+        return flag;
+    }
+
+    public void setFlag(String flag) {
+        if (Utils.isEmpty(flag)) {
+            return;
+        }
+        this.flag = flag;
     }
 
     /**
@@ -73,7 +91,10 @@ public class Bridge {
                 result.add(rules.getString(i));
             }
             if (objects.has(URL)) {
-                url = objects.getString(URL);
+                setUrl(objects.getString(URL));
+            }
+            if (objects.has(FLAG)) {
+                setFlag(objects.getString(FLAG));
             }
         } catch (FileNotFoundException ignored) {
         } catch (Exception e) {
@@ -103,6 +124,7 @@ public class Bridge {
         try (FileOutputStream fileInputStream = new FileOutputStream(profile)) {
             JSONObject value = ruleModel.getValue();
             value.put(URL, url);
+            value.put(FLAG, flag);
             fileInputStream.write(value.toString().getBytes(StandardCharsets.UTF_8));
         } catch (Exception e) {
             e.printStackTrace();

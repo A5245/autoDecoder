@@ -37,14 +37,12 @@ public class HttpModifier implements IHttpListener {
             if (Utils.isMatch(targetUrl)) {
                 stdout.printf("Match url %s\n", targetUrl);
                 if (messageIsRequest) {
-                    back = Transmission.buildResponseBytes(helpers,
-                            Transmission.sendRequest(url, toolFlag, targetUrl, requestInfo.getHeaders(),
-                                    Arrays.copyOfRange(back, requestInfo.getBodyOffset(), back.length)));
+                    back = Transmission.buildResponse(helpers, url, Transmission.newPacket(Transmission.Packet.Type.REQUEST, toolFlag,
+                            targetUrl, requestInfo.getHeaders(), Arrays.copyOfRange(back, requestInfo.getBodyOffset(), back.length)));
                 } else {
                     IResponseInfo responseInfo = helpers.analyzeResponse(back);
-                    back = Transmission.buildResponseBytes(helpers,
-                            Transmission.sendResponse(url, toolFlag, targetUrl, responseInfo.getHeaders(),
-                                    Arrays.copyOfRange(back, responseInfo.getBodyOffset(), back.length)));
+                    back = Transmission.buildResponse(helpers, url, Transmission.newPacket(Transmission.Packet.Type.RESPONSE, toolFlag,
+                            targetUrl, responseInfo.getHeaders(), Arrays.copyOfRange(back, responseInfo.getBodyOffset(), back.length)));
                 }
             }
         } catch (Exception e) {

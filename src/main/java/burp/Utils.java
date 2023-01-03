@@ -79,13 +79,16 @@ public class Utils {
     public static String getUrlByBytes(byte[] data) {
         String[] split = new String(data).split("\n");
         String urlPath = null;
-        String host = null;
+        String host = "";
         for (String each : split) {
-            if (urlPath != null && host != null) {
+            if (urlPath != null && isEmpty(host)) {
                 break;
             }
             if (MATCH.matcher(each).find()) {
                 urlPath = each.split(" ")[1];
+                if (urlPath.startsWith("http")) {
+                    break;
+                }
             } else if (each.toLowerCase().startsWith("host:")) {
                 host = each.substring(5).trim();
             }

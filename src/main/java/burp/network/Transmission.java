@@ -1,5 +1,6 @@
 package burp.network;
 
+import burp.Bridge;
 import burp.IExtensionHelpers;
 import burp.Utils;
 import org.json.JSONArray;
@@ -17,20 +18,17 @@ public class Transmission {
         return Network.post(Network.newRequest(url, packet));
     }
 
-    public static String sendRequest(String url, int from, String targetUrl, List<String> headers, byte[] body) {
-        return send(url, new Packet(from, Packet.Type.REQUEST, targetUrl, headers, body));
+    public static Packet newPacket(Packet.Type type, int from, String targetUrl, List<String> headers, byte[] body) {
+        return new Packet(from, type, targetUrl, headers, body);
     }
 
-    public static String sendResponse(String url, int from, String targetUrl, List<String> headers, byte[] body) {
-        return send(url, new Packet(from, Packet.Type.RESPONSE, targetUrl, headers, body));
-    }
-
-    public static byte[] buildResponseBytes(IExtensionHelpers helpers, String data) {
-        JSONObject jsonObject = new JSONObject(data);
+    public static byte[] buildResponse(IExtensionHelpers helpers, String url, Packet packet) {
+        JSONObject jsonObject = new JSONObject(send(url, packet));
         byte[] body = Utils.b64decode(jsonObject.getString(Packet.BODY));
+        List<String> headersString;
         if (jsonObject.has(Packet.HEADERS) && jsonObject.has(Packet.ORDER)) {
             JSONObject headers = jsonObject.getJSONObject(Packet.HEADERS);
-            List<String> headersString = new ArrayList<>(headers.length());
+            headersString = new ArrayList<>(headers.length());
             for (Object each : jsonObject.getJSONArray(Packet.ORDER)) {
                 String name = each.toString();
                 if ("main".equals(name)) {
@@ -39,9 +37,10 @@ public class Transmission {
                 }
                 headersString.add(String.format("%s: %s", name, headers.getString(name)));
             }
-            return helpers.buildHttpMessage(headersString, body);
+        } else {
+            headersString = packet.headers;
         }
-        return body;
+        return helpers.buildHttpMessage(headersString, body);
     }
 
     public static class Packet {
@@ -51,6 +50,7 @@ public class Transmission {
         public static final String HEADERS = "headers";
         public static final String URL = "url";
         public static final String BODY = "body";
+        public static final String FLAG = "flag";
         private final int from;
         private final Type type;
         private final String url;
@@ -82,6 +82,7 @@ public class Transmission {
                 order.put(name);
                 headers.put(name, value);
             }
+            jsonObject.put(FLAG, Bridge.getInstance().getFlag());
             jsonObject.put(ORDER, order);
             jsonObject.put(HEADERS, headers);
             jsonObject.put(URL, url);

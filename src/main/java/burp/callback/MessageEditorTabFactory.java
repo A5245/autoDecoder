@@ -64,21 +64,20 @@ public class MessageEditorTabFactory implements IMessageEditorTabFactory {
         public void setMessage(byte[] content, boolean isRequest) {
             byte[] text = content;
             try {
+                String url = Bridge.getInstance().getUrl();
                 if (isRequest) {
                     IRequestInfo requestInfo = helpers.analyzeRequest(content);
-                    String url = Utils.getUrl(requestInfo, content);
-                    if (Utils.isMatch(url)) {
-                        stdout.printf("parse %s in editor\n", url);
-                        text = Transmission.buildResponseBytes(helpers, Transmission.sendRequest(Bridge.getInstance().getUrl(),
-                                0x800, url, requestInfo.getHeaders(), Arrays.copyOfRange(content,
-                                        requestInfo.getBodyOffset(), content.length)));
+                    String targetUrl = Utils.getUrl(requestInfo, content);
+                    if (Utils.isMatch(targetUrl)) {
+                        stdout.printf("parse %s in editor\n", targetUrl);
+                        text = Transmission.buildResponse(helpers, url, Transmission.newPacket(Transmission.Packet.Type.REQUEST, 0x800,
+                                targetUrl, requestInfo.getHeaders(), Arrays.copyOfRange(content, requestInfo.getBodyOffset(), content.length)));
                         isModified = true;
                     }
                 } else {
                     IResponseInfo responseInfo = helpers.analyzeResponse(content);
-                    text = Transmission.buildResponseBytes(helpers, Transmission.sendResponse(Bridge.getInstance().getUrl(),
-                            0x800, null, responseInfo.getHeaders(), Arrays.copyOfRange(content,
-                                    responseInfo.getBodyOffset(), content.length)));
+                    text = Transmission.buildResponse(helpers, url, Transmission.newPacket(Transmission.Packet.Type.RESPONSE, 0x800,
+                            null, responseInfo.getHeaders(), Arrays.copyOfRange(content, responseInfo.getBodyOffset(), content.length)));
                     isModified = true;
                 }
             } catch (Exception e) {
