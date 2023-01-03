@@ -1,5 +1,3 @@
-想法来源于该项目：https://github.com/f0ng/autoDecoder
-
 # Burp转发
 
 Add添加正则匹配URL
