@@ -81,7 +81,7 @@ public class Utils {
         String urlPath = null;
         String host = "";
         for (String each : split) {
-            if (urlPath != null && isEmpty(host)) {
+            if (urlPath != null && !isEmpty(host)) {
                 break;
             }
             if (MATCH.matcher(each).find()) {
