@@ -89,4 +89,4 @@ class Demo(BaseModel):
         return data.to_data()
 
 
-Framework("Demo", Demo(), DemoPacket).start("0.0.0.0", 50000)
+Framework("Demo", Demo(), DemoPacket).start("0.0.0.0", 5000)
